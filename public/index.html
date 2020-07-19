@@ -2,18 +2,182 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>聊天室</title>
+  <link rel="stylesheet" href="lib/jquery-mCustomScrollbar/css/jquery.mCustomScrollbar.min.css">
+  <link rel="stylesheet" href="lib/jquery-emoji/css/jquery.emoji.css">
+  <link rel="stylesheet" href="css/index.css" />
 </head>
 
 <body>
-  121313
-</body>
+  <div class="login_box" style="display: block;">
+    <h3>用户登录</h3>
+    <p>用户名</p>
+    <input type="text" placeholder="请输入用户名" id="name-input" />
+    <p id="warn-text"></p>
+    <p>选择头像</p>
+    <ul class="avatar" id="login_avatar">
+      <li><img src="images/avatar01.jpg" alt="" /></li>
+      <li><img src="images/avatar02.jpg" alt="" /></li>
+      <li><img src="images/avatar03.jpg" alt="" /></li>
+      <li><img src="images/avatar04.jpg" alt="" /></li>
+      <li><img src="images/avatar05.jpg" alt="" /></li>
+      <li><img src="images/avatar06.jpg" alt="" /></li>
+      <li><img src="images/avatar07.jpg" alt="" /></li>
+      <li><img src="images/avatar08.jpg" alt="" /></li>
+      <li><img src="images/avatar09.jpg" alt="" /></li>
+      <li><img src="images/avatar10.jpg" alt="" /></li>
+    </ul>
+    <button class="weui-btn" id="loginBtn">登录</button>
+  </div>
+  <div class="container" style="display: none;">
+    <!-- 用户列表 -->
+    <div class="user-list">
+      <div class="header">
+      </div>
+      <div class="title">
+        <h3>用户列表</h3>
+      </div>
+      <ul class="user-list-box">
+      </ul>
+    </div>
+    <!-- 聊天主窗口 -->
+    <div class="box">
+      <!-- 聊天窗口头部 -->
+      <div class="box-hd">
+        <h3>聊天室(99)</h3>
+      </div>
+      <!-- 聊天窗口主体区域 -->
+      <div class="box-bd">
+      </div>
 
+      <!-- 聊天窗口底部区域 -->
+      <div class="box-ft">
+        <!-- 工具栏 -->
+        <div class="toolbar">
+          <a href="javascript:;" title="表情" class="face" id="face"></a>
+          <a href="javascript:;" title="截屏" class="screen-cut">
+          </a>
+          <a href="javascript:;" title="图片" class="file">
+            <label for="file"></label>
+            <input type="file" id="file" style="display: none;" multiple>
+          </a>
+          <a href="javascript:;" title="初始化" class="screen-cut" id="init">
+        </div>
+        <!-- 内容输入区域 -->
+        <div class="content">
+          <!-- <textarea class="text" id="content" contenteditable></textarea> -->
+          <div contenteditable="true" class="text" id="content"></div>
+        </div>
+        <!-- 发送按钮 -->
+        <div class="action">
+          <span class="desc">按下Ctrl+Enter发送</span>
+          <a class="btn-send" id="btn-send" href="javascript:;">发送</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</body>
 <script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io()
+<script src="js/jquery-1.12.4.js"></script>
+<script src="lib/jquery-mCustomScrollbar/script/jquery.mCustomScrollbar.min.js"></script>
+<script src="lib/jquery-emoji/js/jquery.emoji.min.js"></script>
+<script src="js/artTemplate.js"></script>
+<script src="js/common.js"></script>
+<script src="js/index.js" type="module"></script>
+<script type="text/html" id="user_info_tpl">
+  <div class="avatar">
+    <img class="img" src="{{avatar}}" alt="" />
+  </div>
+  <div class="info"><h3 class="username">{{userName}}</h3></div>
 </script>
 
+<script type="text/html" id="user_list_tpl">
+  {{each data e i}}
+    <li class="user">
+      <div class="avatar"><img src="{{e.avatar}}" alt="" /></div>
+      <div class="name">{{e.userName}}</div>
+    </li>
+  {{/each}}
+</script>
+<script type="text/html" id="message_system">
+  <div class="system">
+    <p class="message_system">
+      <span class="content">{{msg}}</span>
+    </p>
+  </div>
+</script>
+<script type="text/html" id="message_user">
+  {{if data.userInfo}}
+    {{set userInfo = data.userInfo}}
+    {{set msg = data.msg}}
+    {{if userInfo.userName===currentUser.userName}}
+    <!-- 自己的消息 -->
+    <div class="message-box">
+      <div class="my message">
+        <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+        <div class="content">
+          <div class="bubble">
+            <!---->
+            <div class="bubble_cont">{{@msg}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{else}}
+    <!-- 别人的消息 -->
+    <div class="message-box">
+      <div class="other message">
+        <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+        <div class="content">
+          <div class="nickname">{{userInfo.userName}}</div>
+          <div class="bubble">
+            <!---->
+            <div class="bubble_cont">{{@msg}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{/if}}
+  {{/if}}
+</script>
+<script type="text/html" id="image_user">
+  {{if data.userInfo}}
+    {{set userInfo = data.userInfo}}
+    {{set imgList = data.imgList}}
+    {{if userInfo.userName===currentUser.userName}}
+    <!-- 自己的消息 -->
+    {{each imgList e i}}
+      <div class="message-box">
+        <div class="my message">
+          <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+          <div class="content">
+            <div class="bubble-img">
+              <img src="{{e}}" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+    {{else}}
+    <!-- 别人的消息 -->
+    {{each imgList e i}}
+      <div class="message-box">
+        <div class="other message">
+          <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+          <div class="content">
+            <div class="nickname">{{userInfo.userName}}</div>
+            <div class="bubble-img">
+              <img src="{{e}}" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+    {{/if}}
+  {{/if}}
+</script>
 </html>
