@@ -58,13 +58,12 @@
         <!-- 工具栏 -->
         <div class="toolbar">
           <a href="javascript:;" title="表情" class="face" id="face"></a>
-          <a href="javascript:;" title="截屏" class="screen-cut">
+          <!-- <a href="javascript:;" title="截屏" class="screen-cut"> -->
           </a>
           <a href="javascript:;" title="图片" class="file">
             <label for="file"></label>
             <input type="file" id="file" style="display: none;" multiple>
           </a>
-          <a href="javascript:;" title="初始化" class="screen-cut" id="init">
         </div>
         <!-- 内容输入区域 -->
         <div class="content">
@@ -96,11 +95,23 @@
 </script>
 
 <script type="text/html" id="user_list_tpl">
+  <li class="user active">
+    <div class="avatar"><img src="images/avatar.jpg" alt="" /></div>
+    <div class="name">公共聊天室</div>
+  </li>
   {{each data e i}}
-    <li class="user">
-      <div class="avatar"><img src="{{e.avatar}}" alt="" /></div>
-      <div class="name">{{e.userName}}</div>
-    </li>
+    {{if e.socketId !== currentUser.socketId}}
+      <li class="user" data-socket_id="{{e.socketId}}" socket_id="{{e.socketId}}">
+        <div class="avatar"><img src="{{e.avatar}}" alt="" /></div>
+        <div class="name">{{e.userName}}</div>
+      </li>
+    {{/if}}
+  {{/each}}
+</script>
+<script type="text/html" id="message_box">
+  {{each data e i}}
+    <div class="box-bd {{i==0&&'active'}}">
+    </div>
   {{/each}}
 </script>
 <script type="text/html" id="message_system">
@@ -110,32 +121,28 @@
     </p>
   </div>
 </script>
-<script type="text/html" id="message_user">
+<!-- <script type="text/html" id="message_user">
   {{if data.userInfo}}
     {{set userInfo = data.userInfo}}
     {{set msg = data.msg}}
     {{if userInfo.userName===currentUser.userName}}
-    <!-- 自己的消息 -->
     <div class="message-box">
       <div class="my message">
         <img class="avatar" src="{{userInfo.avatar}}" alt="" />
         <div class="content">
           <div class="bubble">
-            <!---->
             <div class="bubble_cont">{{@msg}}</div>
           </div>
         </div>
       </div>
     </div>
     {{else}}
-    <!-- 别人的消息 -->
     <div class="message-box">
       <div class="other message">
         <img class="avatar" src="{{userInfo.avatar}}" alt="" />
         <div class="content">
           <div class="nickname">{{userInfo.userName}}</div>
           <div class="bubble">
-            <!---->
             <div class="bubble_cont">{{@msg}}</div>
           </div>
         </div>
@@ -143,7 +150,7 @@
     </div>
     {{/if}}
   {{/if}}
-</script>
+</script> -->
 <script type="text/html" id="image_user">
   {{if data.userInfo}}
     {{set userInfo = data.userInfo}}
@@ -179,5 +186,70 @@
     {{/each}}
     {{/if}}
   {{/if}}
+</script>
+<script type="text/html" id="message_user">
+  {{each data item}}
+    {{set userInfo = item.userInfo}}
+    {{set msg = item.msg}}
+    {{if userInfo.userName===currentUser.userName}}
+      {{if item.type === 0 }}
+        <!-- 自己的消息 -->
+        <div class="message-box">
+          <div class="my message">
+            <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+            <div class="content">
+              <div class="bubble">
+                <!---->
+                <div class="bubble_cont">{{@msg}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{ else if item.type === 1 && item.imgList}}
+        {{each item.imgList e i}}
+          <div class="message-box">
+            <div class="my message">
+              <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+              <div class="content">
+                <div class="bubble-img">
+                  <img src="{{e}}" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{/if}}
+    {{else}}
+      {{if item.type === 0 }}
+        <!-- 别人的消息 -->
+        <div class="message-box">
+          <div class="other message">
+            <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+            <div class="content">
+              <div class="nickname">{{userInfo.userName}}</div>
+              <div class="bubble">
+                <!---->
+                <div class="bubble_cont">{{@msg}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{ else if item.type === 1 && item.imgList}}
+        {{each item.imgList e i}}
+          <div class="message-box">
+            <div class="other message">
+              <img class="avatar" src="{{userInfo.avatar}}" alt="" />
+              <div class="content">
+                <div class="nickname">{{userInfo.userName}}</div>
+                <div class="bubble-img">
+                  <img src="{{e}}" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      {{/if}}
+    {{/if}}
+  {{/each}}
 </script>
 </html>

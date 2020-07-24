@@ -12,6 +12,13 @@ body {
   background: url('../images/bg.jpg') no-repeat center center;
   background-size: cover;
 }
+#content{
+  color: black;
+  text-decoration: none;
+}
+#content img{
+  max-width: 100px;
+}
 .container {
   max-width: 1000px;
   min-width: 800px;
@@ -70,6 +77,10 @@ body {
   top: 51px;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-top: 16px;
+}
+.box-bd.active{
+  display: block;
 }
 
 .system {
@@ -139,6 +150,9 @@ body {
 .my.message .bubble {
   background-color: #b2e281;
 }
+.message .bubble{
+  background-color: #fff;
+}
 .message .bubble,.message .bubble-img {
   max-width: 500px;
   min-height: 1em;
@@ -151,7 +165,7 @@ body {
   margin: 0 10px;
 }
 
-.message .bubble-img img {
+.message .bubble-img img, .bubble_cont img {
   cursor: pointer;
   max-width: 350px;
   max-height: 240px;
@@ -339,6 +353,9 @@ body {
   border-bottom: 1px solid #292c33;
   cursor: pointer;
   position: relative;
+}
+.active.active{
+  background-color: #777;
 }
 
 .user .avatar {

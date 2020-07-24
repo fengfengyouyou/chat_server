@@ -32,13 +32,17 @@ io.on('connection', function (socket) {
             })
             return
         }
-        userList.push(data)
         socket.userName = data.userName
         socket.avatar = data.avatar
+        let userInfo = {
+            ...data,
+            socketId: socket.id
+        }
+        userList.push( userInfo )
 
         socket.emit('loginRes', {
             code: 0,
-            data
+            data: userInfo
         })
 
         // 全部广播
@@ -48,35 +52,101 @@ io.on('connection', function (socket) {
                 msg:socket.userName+'加入了群聊'
             }
         })
-        console.log(userList)
         io.emit('userListChange', {
             code: 0,
             data: userList
         })
     })
+    // type: 0-文字消息，1-图片消息
     socket.on('chatMessage', data => {
-        io.emit('receiveMessage', {
+        if(data.socketId){
+          socket.emit('receiveMessage', {
+            code: 0,
+            data: {
+              socketId: data.socketId,
+              msg: data.msg,
+              type: 0,
+              userInfo: {
+                  userName: socket.userName,
+                  avatar: socket.avatar,
+                  userSocketId: socket.id
+              }
+            }
+          })
+          const toIo = io.sockets.sockets[data.socketId]
+          toIo.emit('receiveMessage', {
+            code: 0,
+            data: {
+                socketId: socket.id,
+                msg: data.msg,
+                type: 0,
+                userInfo: {
+                    userName: socket.userName,
+                    avatar: socket.avatar,
+                    userSocketId: socket.id
+                }
+            }
+          })
+        }else{
+          io.emit('receiveMessage', {
             code: 0,
             data: {
                 msg: data.msg,
+                type: 0,
                 userInfo: {
                     userName: socket.userName,
-                    avatar: socket.avatar
+                    avatar: socket.avatar,
+                    userSocketId: socket.id
                 }
             }
-        })
+          })
+        }
+        
     })
     socket.on('sendImage', data => {
-        io.emit('receiveImage', {
+        console.log('来饿了', data.socketId)
+        if(data.socketId){
+          socket.emit('receiveMessage', {
+            code: 0,
+            data: {
+                socketId: data.socketId,
+                imgList:data.imgList,
+                type: 1,
+                userInfo: {
+                    userName: socket.userName,
+                    avatar: socket.avatar,
+                    userSocketId: socket.id
+                }
+            }
+          })
+          const toIo = io.sockets.sockets[data.socketId]
+          toIo.emit('receiveMessage', {
+              code: 0,
+              data: {
+                  socketId: socket.id,
+                  imgList:data.imgList,
+                  type: 1,
+                  userInfo: {
+                      userName: socket.userName,
+                      avatar: socket.avatar,
+                      userSocketId: socket.id
+                  }
+              }
+          })
+        }else{
+          io.emit('receiveMessage', {
             code: 0,
             data: {
                 imgList:data.imgList,
+                type: 1,
                 userInfo: {
                     userName: socket.userName,
-                    avatar: socket.avatar
+                    avatar: socket.avatar,
+                    userSocketId: socket.id
                 }
             }
-        })
+          })
+        }
     })
     socket.on('disconnect', () => {
         const user = userList.findIndex(e => e.userName === socket.userName)
